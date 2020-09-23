@@ -1,5 +1,7 @@
 # Calculator
+
 Idea from [here](https://github.com/florinpop17/app-ideas)
+
 **Tier:** 1-Beginner
 
 Calculators are not only one of the most useful tools available, but they are

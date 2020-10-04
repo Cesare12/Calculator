@@ -1,6 +1,6 @@
 # Calculator
 
-Idea from [here](https://github.com/florinpop17/app-ideas)
+Idea from [here](https://github.com/florinpop17/app-ideas/blob/master/Projects/1-Beginner/Calculator-App.md)
 
 **Tier:** 1-Beginner
 

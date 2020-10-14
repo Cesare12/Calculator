@@ -71,9 +71,12 @@ class App extends React.Component {
 
     } else {
       if (!isNaN(str[str.length - 1])) {
-        console.log("number:", str)
+        console.log("number1:", str)
       } else if (!isNaN(str.substr(0, str.length - 1))) {
-        console.log("number:", str)
+        if (str[str.length - 1] === '=') {
+          str = str.substring(0, str.length - 1);
+        }
+        console.log("number2:", str)
       } else {
         const len = str.length;
         let [val1, val2, operate] = [1, 1, 1];

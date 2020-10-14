@@ -6,8 +6,9 @@ body {
 .Display {
     color: white;
     background: #1c191c;
-    font-size: 6em;
+    /* font-size: 6em; */
     width: 320px;
+    height: 130px;
     text-align: right;
     line-height: 130px;
 }

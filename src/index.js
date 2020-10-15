@@ -61,43 +61,80 @@ class App extends React.Component {
     this.handlePress = this.handlePress.bind(this);
   }
 
-  parseClickString(str) {
-    console.log(str);
-    if (str[str.length - 1] === 'C') {
-      str = '0'
-    } else if (str[str.length - 1] === '±') {
+  calculateExpression(str) {
+    const len = str.length;
+    let val1, val2, operate;
 
-    } else if (str[str.length - 1] === '%') {
-
-    } else {
-      if (!isNaN(str[str.length - 1])) {
-        console.log("number1:", str)
-      } else if (!isNaN(str.substr(0, str.length - 1))) {
-        if (str[str.length - 1] === '=') {
-          str = str.substring(0, str.length - 1);
-        }
-        console.log("number2:", str)
-      } else {
-        const len = str.length;
-        let [val1, val2, operate] = [1, 1, 1];
-
-        for (let i = 0; i < len; i++) {
-          if (isNaN(str[i])) {
-            operate = str[i];
-            let tmpStr = str;
-            val1 = tmpStr.substring(0, i);
-            tmpStr = str;
-            val2 = tmpStr.substring(i + 1, len - 1)
-            break;
-          }
-        }
-        console.log(val1, val2, operate)
-
-        const result = CalculatorOperations[operate](val1, val2);
-        return result + (str[str.length - 1] === "=" ? "" : str[str.length - 1])
+    for (let i = 1; i < len; i++) {
+      if (str[i] !== '.' && isNaN(str[i])) {
+        operate = str[i];
+        let tmpStr = str;
+        val1 = tmpStr.substring(0, i);
+        tmpStr = str;
+        val2 = tmpStr.substring(i + 1, len)
+        break;
       }
     }
-    return str
+    console.log(val1, val2, operate)
+    const result = CalculatorOperations[operate](parseFloat(val1), parseFloat(val2));
+    return result;
+  }
+
+  calculateString(str) {
+    console.log('calculateString: ', str)
+    if (!isNaN(str)) {//纯数字
+      return str;
+    }
+
+    if (!isNaN(str.substr(0, str.length - 1))) {//去掉最后一个字符是纯数字
+      if (str[str.length - 1] === '=') {//最后一位是'='
+        str = str.substring(0, str.length - 1);
+      }
+      return str;
+    }
+
+    if (!isNaN(str[str.length - 1])) {//最后一位数字，表达式
+      return this.calculateExpression(str);
+    }
+
+    if (isNaN(str[str.length - 1])) {//最后一位字符，去掉最后一个字符是表达式
+      const result = this.calculateExpression(str.substring(0, str.length - 1));
+      return result + (str[str.length - 1] === "=" ? "" : str[str.length - 1])
+    }
+  }
+
+  parseClickString(str) {
+    //去掉首位0
+    if (str[0] === '0' && !isNaN(str[1])) {
+      str = str.substring(1, str.length);
+    }
+    //过滤结尾
+    if (CalculatorOperations[str[str.length - 1]] && CalculatorOperations[str[str.length - 2]]) {
+      str = str.substring(0, str.length - 2) + str[str.length - 1];
+    }
+    console.log('handle: ', str);
+
+    if (str[str.length - 1] === 'C') {
+      return '0'
+    }
+
+    if (str[str.length - 1] === '±') {
+      return (str[0] === '-' ? str.substring(1, str.length - 1) : '-' + str.substring(0, str.length - 1))
+    }
+
+    if (str[str.length - 1] === '%') {
+      if (!isNaN(str[str.length - 2])) {//数字求%
+        return parseFloat(this.calculateString(str.substring(0, str.length - 1))) / 100 + "";
+      } else {//表达式求%
+        return parseFloat(this.calculateString(str.substring(0, str.length - 2))) / 100 + str[str.length - 2];
+      }
+    }
+
+    if (CalculatorOperations[str[str.length - 1]]){//计算
+      return this.calculateString(str) + "";
+    }
+
+    return str;
   }
 
   handlePress(x) {

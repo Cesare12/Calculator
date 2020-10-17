@@ -76,61 +76,69 @@ class App extends React.Component {
       }
     }
     console.log(val1, val2, operate)
+    if (operate === '÷' && val2 === '0') {
+      return 'stupid'
+    }
     const result = CalculatorOperations[operate](parseFloat(val1), parseFloat(val2));
     return result;
   }
 
   calculateString(str) {
     console.log('calculateString: ', str)
-    if (!isNaN(str)) {//纯数字
+    if (!isNaN(str)) {//type: []
       return str;
     }
 
-    if (!isNaN(str.substr(0, str.length - 1))) {//去掉最后一个字符是纯数字
-      if (str[str.length - 1] === '=') {//最后一位是'='
+    if (!isNaN(str.substr(0, str.length - 1))) {//type: []x
+      if (str[str.length - 1] === '=') {//x is '='
         str = str.substring(0, str.length - 1);
       }
       return str;
     }
 
-    if (!isNaN(str[str.length - 1])) {//最后一位数字，表达式
+    if (!isNaN(str[str.length - 1])) {//type: []x[]
       return this.calculateExpression(str);
     }
 
-    if (isNaN(str[str.length - 1])) {//最后一位字符，去掉最后一个字符是表达式
+    if (isNaN(str[str.length - 1])) {//type: []x[]x
       const result = this.calculateExpression(str.substring(0, str.length - 1));
       return result + (str[str.length - 1] === "=" ? "" : str[str.length - 1])
     }
   }
 
   parseClickString(str) {
-    //去掉首位0
+    //delete first place 0
     if (str[0] === '0' && !isNaN(str[1])) {
       str = str.substring(1, str.length);
     }
-    //过滤结尾
+    //fix last operate
     if (CalculatorOperations[str[str.length - 1]] && CalculatorOperations[str[str.length - 2]]) {
       str = str.substring(0, str.length - 2) + str[str.length - 1];
     }
+    //fix last too many zeros
+    if ((CalculatorOperations[str[str.length - 3]]) && str[str.length - 1] === '0' && str[str.length - 2] === '0') {
+      str = str.substr(0, str.length - 1);
+    }
     console.log('handle: ', str);
 
-    if (str[str.length - 1] === 'C') {
+    if (str[str.length - 1] === 'C' || (str[0] === '0' && str[1] === 'x')) {
       return '0'
     }
 
     if (str[str.length - 1] === '±') {
+      if (str[0] === '0') return '0';
       return (str[0] === '-' ? str.substring(1, str.length - 1) : '-' + str.substring(0, str.length - 1))
     }
 
     if (str[str.length - 1] === '%') {
-      if (!isNaN(str[str.length - 2])) {//数字求%
+      if (!isNaN(str[str.length - 2])) {//number
         return parseFloat(this.calculateString(str.substring(0, str.length - 1))) / 100 + "";
-      } else {//表达式求%
+      } else {//expression
         return parseFloat(this.calculateString(str.substring(0, str.length - 2))) / 100 + str[str.length - 2];
       }
     }
 
-    if (CalculatorOperations[str[str.length - 1]]){//计算
+    if (CalculatorOperations[str[str.length - 1]]) {//calculate expression
       return this.calculateString(str) + "";
     }
 
@@ -144,7 +152,6 @@ class App extends React.Component {
     this.setState(
       { displayValue: this.parseClickString(displayValue) }
     )
-    // console.log(this);
   }
 
   render() {
